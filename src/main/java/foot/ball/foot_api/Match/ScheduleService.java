@@ -43,37 +43,37 @@ public class ScheduleService {
         return this.getListMatch().getData().stream().filter(MatchModel::isPopular).toList();
     }
 
+
     public List<MatchModel> getTomorrowMatch() {
         LocalDate tomorrowDate = LocalDate.now().plusDays(1);
 
-        return this.getPopularMatch().stream()
+        List<MatchModel> list =  this.getPopularMatch().stream()
                 .filter(match -> {
                     Instant matchInstant = Instant.ofEpochMilli(match.getDate());
                     LocalDate matchDate = matchInstant.atZone(ZoneId.systemDefault()).toLocalDate();
                     return matchDate.equals(tomorrowDate);
                 })
                 .collect(Collectors.toList());
+        System.out.println(list);
+        return  list;
     }
 
-    @Scheduled(cron = "0 00 00 * * * ")
+    @Scheduled(cron = "0 00 06 * * *")
     public void GenerateImageForEachMatch(){
         List<MatchModel> allMatchTomorrow = getTomorrowMatch();
 
-        for (int i = 0; i < allMatchTomorrow.size(); i++) {
-            MatchModel match = allMatchTomorrow.get(i);
-            schedulePUblication(match);
-
+        for (MatchModel match : allMatchTomorrow) {
+            schedulePublication(match);
         }
     }
 
-    @Async
-    private void schedulePUblication(MatchModel match) {
-        try {
-            Thread.sleep(3600000L); 
 
-            String club_1 = match.getTitle().split("vs")[0].trim();
-            String club_2 = match.getTitle().split("vs")[1].trim();
-            this.postService.newPost(match.getTitle(), match.getPoster());
+
+    @Async
+    private void schedulePublication(MatchModel match) {
+        try {
+            this.postService.newPost(match, match.getPoster());
+            Thread.sleep(3600000L);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
