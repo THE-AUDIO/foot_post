@@ -16,3 +16,5 @@ spring:
 
 key:
   replica: ${REPLICA_TOKEN}
+  frame_api_key : ${FRAME_TOKEN}
+  graph: ${API_GRAPH_TOKEN}

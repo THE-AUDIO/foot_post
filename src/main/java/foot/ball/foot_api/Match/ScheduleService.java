@@ -2,9 +2,14 @@ package foot.ball.foot_api.Match;
 
 import foot.ball.foot_api.Match.model.MatchDto;
 import foot.ball.foot_api.Match.model.MatchModel;
+import foot.ball.foot_api.generateImage.GenerateImageService;
+import foot.ball.foot_api.graph.PostService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,12 +21,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class ScheduleService {
+    @Autowired
+    private PostService postService;
 
-      final  String apiUrl = "https://api.sportsrc.org/?data=matches&category=football";
-
-
-
+    final  String apiUrl = "https://api.sportsrc.org/?data=matches&category=football";
     public MatchDto getListMatch(){
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<MatchDto> entity = new HttpEntity<>(headers);
@@ -48,6 +53,30 @@ public class ScheduleService {
                     return matchDate.equals(tomorrowDate);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Scheduled(cron = "0 18 17 * * * ")
+    public void GenerateImageForEachMatch(){
+        List<MatchModel> allMatchTomorrow = getTomorrowMatch();
+
+        for (int i = 0; i < allMatchTomorrow.size(); i++) {
+            MatchModel match = allMatchTomorrow.get(i);
+            schedulePUblication(match, i);
+
+        }
+    }
+
+    @Async
+    private void schedulePUblication(MatchModel match, int delayInHours) {
+        try {
+            Thread.sleep(delayInHours * 3600000L); // Convertir heures en millisecondes
+
+            String club_1 = match.getTitle().split("vs")[0].trim();
+            String club_2 = match.getTitle().split("vs")[1].trim();
+            this.postService.newPost(match.getTitle(), match.getPoster());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }
