@@ -2,10 +2,7 @@ package foot.ball.foot_api.generateImage.models;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
 import lombok.Data;
 
 import java.time.Instant;
