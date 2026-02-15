@@ -55,21 +55,21 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    @Scheduled(cron = "0 18 17 * * * ")
+    @Scheduled(cron = "0 00 00 * * * ")
     public void GenerateImageForEachMatch(){
         List<MatchModel> allMatchTomorrow = getTomorrowMatch();
 
         for (int i = 0; i < allMatchTomorrow.size(); i++) {
             MatchModel match = allMatchTomorrow.get(i);
-            schedulePUblication(match, i);
+            schedulePUblication(match);
 
         }
     }
 
     @Async
-    private void schedulePUblication(MatchModel match, int delayInHours) {
+    private void schedulePUblication(MatchModel match) {
         try {
-            Thread.sleep(delayInHours * 3600000L); // Convertir heures en millisecondes
+            Thread.sleep(3600000L); 
 
             String club_1 = match.getTitle().split("vs")[0].trim();
             String club_2 = match.getTitle().split("vs")[1].trim();
